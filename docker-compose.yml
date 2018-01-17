@@ -1,0 +1,55 @@
+version: "3"
+
+services:
+  zabbix-server:
+     image: zabbix/zabbix-server-mysql:ubuntu-3.4-latest
+     ports:
+      - "10051"
+     environment:
+      - DB_SERVER_HOST=db
+      - MYSQL_ROOT_PASSWORD=zabbix
+      - MYSQL_USER=zabbix
+      - MYSQL_PASSWORD=zabbix
+     volumes:
+      - ./zabbix/alertscripts:/usr/lib/zabbix/alertscripts
+      - ./zabbix/externalscripts:/usr/lib/zabbix/externalscripts
+      - ./zabbix/enc:/var/lib/zabbix/enc
+      - ./zabbix/modules:/var/lib/zabbix/modules
+      - ./zabbix/ssh_keys:/var/lib/zabbix/ssh_keys
+      - ./zabbix/ssl/certs:/var/lib/zabbix/ssl/certs
+      - ./zabbix/ssl/keys:/var/lib/zabbix/ssl/keys
+      - ./zabbix/ssl/ssl_ca:/var/lib/zabbix/ssl/ssl_ca
+      - ./zabbix/snmptraps:/var/lib/zabbix/snmptraps
+      - ./zabbix/mibs:/var/lib/zabbix/mibs
+     links:
+      - db
+
+  zabbix-web:
+     image: zabbix/zabbix-web-nginx-mysql:ubuntu-3.4-latest
+     ports:
+      - "32776:80"
+     environment:
+      - DB_SERVER_HOST=db
+      - MYSQL_USER=zabbix
+      - MYSQL_PASSWORD=zabbix
+      - ZBX_SERVER_HOST=zabbix-server
+      - PHP_TZ=Asia/Shanghai
+
+     volumes:
+      - ./nginx:/etc/ssl/nginx
+     links:
+      - db
+      - zabbix-server
+
+  db:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=zabbix
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./mysql:/var/lib/mysql
+
+
+
+
+
