@@ -41,6 +41,15 @@ services:
       - db
       - zabbix-server
 
+  zabbix-agent:
+     image: zabbix/zabbix-agent:ubuntu-3.4-latest
+     environment:
+      - ZBX_SERVER_HOST=zabbix-server
+      - ZBX_HOSTNAME=zabbix-agent
+
+     links:
+      - zabbix-server
+
   db:
     image: mysql:5.7
     environment:
